@@ -1115,6 +1115,7 @@ span.title-empty {
 
 #featureselection {
 	width: 820px; margin: 0 40px; padding: 0;
+	height: 150px;
 	background-color: #ccffcc;
 	-webkit-border-radius: 10px;
 	-moz-border-radius: 10px;
@@ -1136,6 +1137,15 @@ span.title-empty {
 #featureselection .features-desc {
 	float: left;
 	width: 190px; margin: 10px; padding: 0;
+}
+
+#featureselection #features-page {
+	width: 30px;
+	margin: 0; padding: 0;
+	position: absolute;
+	right: 10px;
+	bottom: 10px;
+	cursor: pointer;
 }
 
 #featureselection ul {
