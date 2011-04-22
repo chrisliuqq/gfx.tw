@@ -52,10 +52,21 @@ class User extends Controller {
 			$user->free_result();
 			$F = array();
 			for ($i = 0; $i < 3; $i++) {
-				$feature = $this->db->query('SELECT name, title, description FROM features ' 
-				. 'WHERE `id` = ' . $U['feature_' . $i] . ';');
-				$F[] = $feature->row_array();
-				$feature->free_result();
+				if ($U['feature_' . $i] < 16)
+				{
+					$feature = $this->db->query('SELECT name, title, description FROM features ' 
+					. 'WHERE `id` = ' . $U['feature_' . $i] . ';');
+					$F[] = $feature->row_array();
+					$feature->free_result();
+				}
+				else
+				{
+					$tempid = $U['feature_' . $i] - 15;
+					$F[] = array(
+					'name' => 'custom-' . $tempid,
+					'title' => $U['custom_features'.$tempid.'_title'],
+					'description' => $U['custom_features' . $tempid . '_description']);
+				}
 			}
 			unset($feature);
 			$addons = $this->db->query('SELECT t1.*, t2.group_id FROM addons t1, u2a t2 '

@@ -129,6 +129,9 @@ if (preg_match('/myid\.tw\/$/', $login)) { ?>
 		<p class="features-desc">請將想要推薦的功能拖放到您想要顯示的位置。</p>
 		<ul>
 <?php
+
+$rows_page = 10;
+$seperator = false;
 /* put it into a function scope */
 function featureselection($feature) {
 	extract($feature);
@@ -136,11 +139,22 @@ function featureselection($feature) {
 			<li id="fs-<?php print $name; ?>"<?php if (isset($user_order)) print ' class="selected"';?> rel="fid-<?php print $id; ?>" title="<?php print htmlspecialchars($description); ?>"><?php print htmlspecialchars($title); ?></li>
 <?php
 }
+$i = 1;
 $features = array();
 foreach ($allfeatures as $feature) {
 	featureselection($feature);
 	if (isset($feature['user_order'])) {
 		$features[$feature['user_order']] = $feature;
+	}
+	$i++;
+	if ($i > $rows_page && !$seperator)
+	{
+?>
+		</ul>
+		<div id="features-page">換頁</div>
+		<ul style="display: none;">
+<?php
+		$seperator = true;
 	}
 }
 ?>
@@ -161,6 +175,7 @@ function feature($feature) {
 		</div>
 <?php
 }
+
 for ($i = 0; $i < 3; $i++) {
 	if (isset($features[$i])) feature($features[$i]);
 	else {
@@ -204,6 +219,15 @@ for ($i = 0; $i < 3; $i++) {
 		<p>這會從系統中刪除您所有個人資訊，包括自訂的套件列表、圖片、下載次數紀錄等等。</p>
 		<p id="delete-url-notice">另外，您的推薦頁網址 (<?php print base_url(); ?><span class="name-placeholder"><?php print $name ?></span>/) 也將取消，其他人從此可以選用 <span class="name-placeholder"><?php print $name ?></span> 作為他的網址。</p>
 		<p>這個動作無法復原。若確定要刪除您的帳號，請按下面的按鈕。</p>
+	</div>
+	<div id="window_custom" class="window" title="編輯自訂推薦">
+		<form id="custom_form" action="#">
+			<p><label for"custom_title">推薦標題：</label><?php print form_input(array('id' =>'custom_title')); ?></p>
+			<p><label for="custom_description">推薦描述：</label>
+				<textarea id="custom_description"></textarea>
+			<p>
+			<input type="hidden" id="custom_id" />
+		</form>
 	</div>
 	<div id="groups-title">
 		<h2><span class="title-placeholder">{您的名字}</span>推薦的附加元件</h2>

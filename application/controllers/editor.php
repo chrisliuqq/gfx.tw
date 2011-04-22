@@ -31,13 +31,29 @@ class Editor extends Controller {
 		$allfeatures = $this->db->query('SELECT `id`, `name`, `title`, `description` FROM `features` ORDER BY `order` ASC;');
 		$F = array();
 		foreach ($allfeatures->result_array() as $feature) {
-			for ($i = 0; $i < 3; $i++) {
-				if ($feature['id'] === $U['feature_' . $i]) $feature['user_order'] = $i;
-			}
 			$F[] = $feature;
 		}
+		// add custom user's features to all features
+		for($i = 16; $i < 19; $i++) {
+			$tempid = ($i - 15);
+			$feature = array('id' => "$i", 
+				'name' => 'custom-' . $tempid, 
+				'title' => empty($U['custom_features' . $tempid . '_title']) ? 
+					'自訂推薦' . $tempid : $U['custom_features' . $tempid . '_title'], 
+				'description' => empty($U['custom_features' . $tempid . '_description']) ? 
+					'自訂推薦說明' . $tempid : $U['custom_features' . $tempid . '_description']);
+			$F[] = $feature;
+		}
+		$i = 0;
+		foreach ($F as $feature) {
+			for ($j = 0; $j < 3; $j++) {
+				if ($feature['id'] === $U['feature_' . $j]) $F[$i]['user_order'] = $j;
+			}
+			$i++;
+		}
+
 		$allfeatures->free_result();
-		unset($allfeatures, $feature);
+		unset($allfeatures, $feature, $tempid);
 		$addons = $this->db->query('SELECT t1.*, t2.group_id FROM addons t1, u2a t2 '
 		. 'WHERE t2.addon_id = t1.id AND t2.user_id = ' . $U['id'] . ' ORDER BY t2.order ASC;');
 		$A = array();
@@ -94,7 +110,7 @@ class Editor extends Controller {
 		if ($this->input->post('ready')) {
 			$data['ready'] = $this->input->post('ready');
 		}
-		
+
 		if ($this->input->post('avatar')) {
 			$a = $this->input->post('avatar');
 			switch ($a) {
@@ -192,7 +208,6 @@ class Editor extends Controller {
 			}
 			$data['features_victor'] = $v;
 		}
-
 		if ($data) $this->db->update('users', $data, array('id' => $this->session->userdata('id')));
 
 		if ($this->input->post('groups')) {
@@ -413,6 +428,31 @@ class Editor extends Controller {
 			array('jsonObj' => 
 				array(
 					'name' => $this->input->post('name')
+				)
+			)
+		);
+	}
+	/* Custom Features Save*/
+	function custom_save() {
+		$this->load->helper('gfx');
+		if (!checkAuth(true, false, 'json')) return;
+		if ($this->input->post('id')) {
+			$cfid = $this->input->post('id');
+			$data['custom_features' . $cfid . '_title'] = $this->input->post('title');
+			$data['custom_features' . $cfid . '_description'] = $this->input->post('description');
+		}
+
+		$this->db->update('users', $data, array('id' => $this->session->userdata('id')));
+		if ($this->db->affected_rows() === 1) {
+			$infoChanged = true;
+		} else {
+			$infoChanged = false;
+		}
+
+		$this->load->view('json.php',
+			array('jsonObj' =>
+				array(
+					'custom_id' => $this->input->post('id')
 				)
 			)
 		);
